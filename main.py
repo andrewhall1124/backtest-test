@@ -8,6 +8,7 @@ import numpy as np
 
 IC = 0.05
 
+print("Loading data...")
 df_data = sfd.load_assets(
     start=dt.date(2023, 11, 1),
     end=dt.date(2024, 12, 31),
@@ -15,6 +16,7 @@ df_data = sfd.load_assets(
     in_universe=True
 ).with_columns(pl.col("return", "specific_risk").truediv(100))
 
+print("Computing signals...")
 df_signals = (
     df_data.sort("barrid", "date")
     .with_columns(
@@ -34,6 +36,7 @@ df_signals = (
     )
 )
 
+print("Computing alphas...")
 df_alphas = df_signals.with_columns(
     pl.lit(IC)
     .mul(pl.col("score"))
@@ -41,6 +44,7 @@ df_alphas = df_signals.with_columns(
     .alias("alpha")
 )
 
+print("Applying filters...")
 df_filtered = (
     df_alphas
     .filter(
@@ -56,5 +60,6 @@ class ZeroBeta(sfo.constraints.Constraint):
         return betas @ weights == 0
 
 
+print("Computing weights...")
 weights = sfb.backtest_parallel(data=df_filtered, constraints=[ZeroBeta()], gamma=2)
-print(weights)
+weights.write_parquet("weights.parquet")
