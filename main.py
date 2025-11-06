@@ -10,7 +10,7 @@ IC = 0.05
 
 print("Loading data...")
 df_data = sfd.load_assets(
-    start=dt.date(2023, 11, 1),
+    start=dt.date(2024, 1, 1),
     end=dt.date(2024, 12, 31),
     columns=["date", "barrid", "price", "return", "specific_risk", "predicted_beta"],
     in_universe=True
